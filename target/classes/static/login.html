@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Acharya Bangalore B School - Login</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+
+body{
+background:#f4f6f9;
+}
+
+.password-container{
+position:relative;
+}
+
+.password-container i{
+position:absolute;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body class="bg-light">
+
+<script>
+localStorage.removeItem("token");
+localStorage.removeItem("role");
+</script>
+
+<div class="container mt-5 col-md-4">
+
+<div class="card p-4 shadow">
+
+<h3 class="text-center mb-3">Acharya Bangalore B School</h3>
+
+<h5 class="text-center text-muted mb-4">Login</h5>
+
+<input id="email" class="form-control mb-3" placeholder="Email">
+
+<div class="password-container mb-3">
+
+<input id="password" type="password" class="form-control" placeholder="Password">
+
+<i class="bi bi-eye-slash" id="togglePassword"></i>
+
+</div>
+
+<div class="d-flex justify-content-between">
+
+<button class="btn btn-primary w-50 me-2" onclick="studentLogin()">
+Student Login
+</button>
+
+<button class="btn btn-dark w-50" onclick="adminLogin()">
+Admin Login
+</button>
+
+</div>
+
+<div class="text-center mt-3">
+<a href="forgot-password.html">Forgot Password?</a>
+</div>
+
+<div class="text-center mt-2">
+New student? <a href="register.html">Register here</a>
+</div>
+
+</div>
+</div>
+
+<script>
+
+function studentLogin(){
+login("ROLE_STUDENT");
+}
+
+function adminLogin(){
+login("ROLE_ADMIN");
+}
+
+function login(expectedRole){
+
+fetch("/auth/login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email:document.getElementById("email").value,
+password:document.getElementById("password").value
+})
+})
+
+.then(res=>{
+if(!res.ok){
+return res.text().then(text=>{throw new Error(text)});
+}
+return res.json();
+})
+
+.then(data=>{
+
+localStorage.setItem("token",data.token);
+localStorage.setItem("role",data.role);
+
+if(data.role !== expectedRole){
+alert("Wrong login type");
+localStorage.clear();
+return;
+}
+
+if(data.role === "ROLE_ADMIN"){
+window.location="admin.html";
+}else{
+window.location="dashboard.html";
+}
+
+})
+
+.catch(err=>{
+alert(err.message);
+});
+
+}
+
+const togglePassword = document.querySelector("#togglePassword");
+
+const password = document.querySelector("#password");
+
+togglePassword.addEventListener("click", function () {
+
+const type = password.getAttribute("type") === "password" ? "text" : "password";
+
+password.setAttribute("type", type);
+
+this.classList.toggle("bi-eye");
+
+this.classList.toggle("bi-eye-slash");
+
+});
+
+</script>
+
+</body>
+</html>
